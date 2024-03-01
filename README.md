@@ -6,6 +6,33 @@
 ![comparison](docs/imgs/truncnormkde_comparison.png)
 
 ## Usage
+Evaluate the KDE by instantiating the `BoundedKDE` object
+
+```python
+from truncnormkde import compute_bandwidth, BoundedKDE
+
+#Bounds and bandwidth
+a = jnp.array([0.0, 0.0])
+b = jnp.array([1.0, 1.0])
+bandwidth = compute_bandwidth(X)
+
+BKDE = BoundedKDE(a=a, b=b, bandwidth=bandwidth)
+```
+
+#### Evaluate
+To evaluate it, just use it like a function:
+```python
+BKDE(evaluation_points, data_points)
+```
+
+#### Gram Matrix
+or compute the kernel gram martrix from a bunch of points by:
+```python
+BKDE.gram_matrix(data_points)
+```
+
+### Example:
+
 Let's first generate some data
 ```python
 import numpy as np
@@ -20,31 +47,7 @@ X = jnp.stack([scipy.stats.truncnorm.rvs(loc=mu, scale=sig, a=(a - mu)/sig, b=(b
 X.shape # (8000, 2) # Important that the dimension of the space is the last index
 ```
 
-Evaluate the KDE by instantiating the `BoundedKDE` object
-
-```python
-from truncnormkde import compute_bandwidth, BoundedKDE
-
-#Bounds and bandwidth
-a = jnp.array([0.0, 0.0])
-b = jnp.array([1.0, 1.0])
-bandwidth = compute_bandwidth(X)
-
-BKDE = BoundedKDE(a=a, b=b, bandwidth=bandwidth)
-```
-
-To evaluate it, just use it like a function:
-```python
-BKDE(evaluation_points, data_points)
-```
-
-or compute the kernel gram martrix from a bunch of points by:
-```python
-BKDE.gram_matrix(data_points)
-```
-
-
-Lets evaluate it on a grid:
+then evaluate it on a grid:
 
 ```python
 # Generate the evaluate grid
