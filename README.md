@@ -38,6 +38,12 @@ To evaluate it, just use it like a function:
 BKDE(evaluation_points, data_points)
 ```
 
+or compute the kernel gram martrix from a bunch of points by:
+```python
+BKDE.gram_matrix(data_points)
+```
+
+
 Lets evaluate it on a grid:
 
 ```python
@@ -58,3 +64,7 @@ ax.set_aspect('equal')
 plt.show()
 ```
 ![test](tests/mu0p2-sig0p2-test.png)
+
+
+## Kernel Gram Matrix
+It will al
