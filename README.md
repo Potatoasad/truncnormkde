@@ -64,7 +64,3 @@ ax.set_aspect('equal')
 plt.show()
 ```
 ![test](tests/mu0p2-sig0p2-test.png)
-
-
-## Kernel Gram Matrix
-It will al
