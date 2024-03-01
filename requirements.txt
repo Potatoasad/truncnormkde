@@ -1,6 +1,5 @@
 jax
 jaxlib
-astropy
 numpy
 scipy
-pandas
+matplotlib
