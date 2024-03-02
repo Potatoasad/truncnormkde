@@ -56,8 +56,8 @@ class BoundedKDE:
     def __call__(self, X_eval, X_data):
         self.input_shape(len(X_eval.shape)-1, len(X_data.shape)-1)
         X_eval_reshaped, X_data_reshaped = self.reshape_tensors(X_eval, X_data)
-        print(X_eval_reshaped.shape, X_data_reshaped.shape)
-        print(self.bandwidth.shape, self.a.shape, self.b.shape)
+        #print(X_eval_reshaped.shape, X_data_reshaped.shape)
+        #print(self.bandwidth.shape, self.a.shape, self.b.shape)
         result = self.kde(X_eval_reshaped, X_data_reshaped, bandwidth=self.bandwidth, a=self.a, b=self.b)
         result = result.prod(axis=-1).mean(axis=-1)
         return result

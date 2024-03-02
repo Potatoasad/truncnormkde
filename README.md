@@ -24,6 +24,7 @@ To evaluate it, just use it like a function:
 ```python
 BKDE(evaluation_points, data_points)
 ```
+> __Important:__ The last index for the `evaluation_points` and  `data_points` should be the dimension index. 
 
 #### Gram Matrix
 or compute the kernel gram martrix from a bunch of points by:
