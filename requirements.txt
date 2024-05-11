@@ -3,3 +3,4 @@ jaxlib
 numpy
 scipy
 matplotlib
+pandas
