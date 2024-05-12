@@ -59,7 +59,7 @@ class BoundedKDEPlot:
         f = interpolate.interp1d(quantils, ts)
         t_contours = f(np.array(quantiles))
         
-        quantile_labels = [f"{np.round(q*100,0)} %" for q in quantiles]
+        quantile_labels = [f"{int(np.round(q*100,0))}%" for q in quantiles]
 
         fmt = {}
         for name, contour in zip(quantile_labels, t_contours):
