@@ -37,24 +37,35 @@ class BoundedKDEPlot:
         return computed_values, X_grid, x_2d, y_2d
         
     def plot_on_axis(self, computed_values, X_grid , x_2d, y_2d, ax, quantiles=[0.9, 0.5], a=[0,0], b=[1,1], gridsize=100, cmax=None, cmin=0, title=None, 
-                    quantile_labels=None):
+                    quantile_labels=None, aspect=None, cmap=cm.coolwarm):
         self.cmax = cmax or computed_values.max()
 
         levels = np.linspace(cmin, self.cmax, 80)
-        cont = ax.contourf(x_2d, y_2d, computed_values, cmap=cm.coolwarm, levels=levels)
+        cont = ax.contourf(x_2d, y_2d, computed_values, cmap=cmap, levels=levels, antialiased=True)
+
+        for c in cont.collections:
+            c.set_edgecolor("face")
 
         ax.set_xlim(a[0],b[0])
         ax.set_ylim(a[1],b[1])
 
-        ax.set_aspect('equal')
+        if aspect is None:
+            ax.set_aspect('equal')
+        else:
+            ax.set_aspect(aspect)
+
         if title is not None:
             ax.set_title(title)
         ax.set_xlabel(self.columns[0])
         ax.set_ylabel(self.columns[1])
+
+        self.computed_values = computed_values
         
         from scipy import interpolate
+        dx = (b[0] - a[0])/gridsize;
+        dy = (b[1] - a[1])/gridsize;
         ts = np.linspace(0,computed_values.max(),100)
-        quantils = ((computed_values[:,:,None] > ts[None, None, :]) * computed_values[:,:,None]).sum(axis=(0,1)) / (gridsize**2)
+        quantils = ((computed_values[:,:,None] > ts[None, None, :]) * computed_values[:,:,None]).sum(axis=(0,1)) * dx * dy
 
         f = interpolate.interp1d(quantils, ts)
         t_contours = f(np.array(quantiles))
@@ -70,18 +81,19 @@ class BoundedKDEPlot:
 
         return cont, ax, self.cmax
             
-    def plot_posterior(self, quantiles=[0.9, 0.5], a=[0,0], b=[1,1], gridsize=100, cmax=None, title=None, dpi=150):
+    def plot_posterior(self, quantiles=[0.9, 0.5], a=[0,0], b=[1,1], gridsize=100, cmax=None, title=None, dpi=150, colorbar=True, cmap=cm.coolwarm):
         fig, axes = plt.subplots(ncols=1, figsize=(5,5), dpi=dpi)
         ax=axes
         computed_values, X_grid, x_2d, y_2d = self.compute_values_on_grid(self.X, a=a, b=b, gridsize=gridsize)
-        cont, ax, self.cmax = self.plot_on_axis(computed_values, X_grid, x_2d, y_2d, ax=ax, quantiles=quantiles, a=a, b=b, gridsize=gridsize, cmax=cmax, title=title)
+        cont, ax, self.cmax = self.plot_on_axis(computed_values, X_grid, x_2d, y_2d, ax=ax, quantiles=quantiles, a=a, b=b, gridsize=gridsize, cmax=cmax, title=title, cmap=cmap)
         
-        fig.colorbar(cont, shrink=0.8, ticks=np.linspace(0,int(self.cmax),int(self.cmax+1)))
+        if colorbar:
+            fig.colorbar(cont, shrink=0.8, ticks=np.linspace(0,int(self.cmax),int(self.cmax+1)))
         
-        plt.show()
+        #plt.show()
         return fig
 
-    def plot_both(self, quantiles=[0.9, 0.5], a=[0,0], b=[1,1], gridsize=100, cmax=None, title=None, dpi=150):
+    def plot_both(self, quantiles=[0.9, 0.5], a=[0,0], b=[1,1], gridsize=100, cmax=None, title=None, dpi=150, colorbar=True, cmap=cm.coolwarm):
         fig, axes = plt.subplots(ncols=2, figsize=(10,5), dpi=dpi)
         
         computed_values1, X_grid1, x_2d, y_2d = self.compute_values_on_grid(self.X, a=a, b=b, gridsize=gridsize)
@@ -99,22 +111,24 @@ class BoundedKDEPlot:
             title1 = "posterior"
             title2 = "prior"
         
-        cont1, ax, cmax1 = self.plot_on_axis(computed_values1, X_grid1, x_2d, y_2d, ax, quantiles, a, b, gridsize, cmax=cmax_int, title=title1)
+        cont1, ax, cmax1 = self.plot_on_axis(computed_values1, X_grid1, x_2d, y_2d, ax, quantiles, a, b, gridsize, cmax=cmax_int, title=title1, cmap=cmap)
         
         ax=axes[1]
-        cont2, ax, cmax2 = self.plot_on_axis(computed_values2, X_grid2, x_2d, y_2d, ax, quantiles, a, b, gridsize, cmax=cmax_int, title=title2)
+        cont2, ax, cmax2 = self.plot_on_axis(computed_values2, X_grid2, x_2d, y_2d, ax, quantiles, a, b, gridsize, cmax=cmax_int, title=title2, cmap=cmap)
         
         fig.subplots_adjust(right=0.8)
         cbar_ax = fig.add_axes([0.84, 0.17, 0.01, 0.62])
-        fig.colorbar(cont2, cax=cbar_ax, ticks=np.linspace(0,cmax_int,cmax_int+1))
+
+        if colorbar:
+            fig.colorbar(cont2, cax=cbar_ax, ticks=np.linspace(0,cmax_int,cmax_int+1))
         
-        plt.show()
+        #plt.show()
         return fig
         
-    def plot(self, quantiles=[0.9, 0.5], a=[0,0], b=[1,1], gridsize=100, cmax=None, title=None, dpi=150):
+    def plot(self, quantiles=[0.9, 0.5], a=[0,0], b=[1,1], gridsize=100, cmax=None, title=None, dpi=150, colorbar=True, cmap=cm.coolwarm):
         if self.X_prior is not None:
-            fig = self.plot_both(quantiles=quantiles, a=a, b=b, gridsize=gridsize, cmax=cmax, title=(title or ['posterior', 'prior']), dpi=dpi)
+            fig = self.plot_both(quantiles=quantiles, a=a, b=b, gridsize=gridsize, cmax=cmax, cmap=cmap, title=(title or ['posterior', 'prior']), dpi=dpi, colorbar=colorbar)
         else:
-            fig = self.plot_posterior(quantiles=quantiles, a=a, b=b, gridsize=gridsize, cmax=cmax, title=title, dpi=dpi)
+            fig = self.plot_posterior(quantiles=quantiles, a=a, b=b, gridsize=gridsize, cmax=cmax, cmap=cmap, title=title, dpi=dpi, colorbar=colorbar)
             
         return fig
