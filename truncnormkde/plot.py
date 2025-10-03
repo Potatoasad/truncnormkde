@@ -145,8 +145,8 @@ class BoundedKDEPlot:
 
         levels = np.linspace(cmin, self.cmax, 80)
 
-        for c in cont.collections:
-            c.set_edgecolor("face")
+        #for c in cont.collections:
+        cont.set_edgecolor("face")
 
         ax.set_xlim(a[0],b[0])
         ax.set_ylim(a[1],b[1])
